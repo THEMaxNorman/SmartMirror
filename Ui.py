@@ -147,7 +147,11 @@ def putWeatherOnScreen():
         for c in b:
             if "a" not in str(c):
                 if "y" not in str(c):
-                    Label(text=str(c), fg="white", bg="black",anchor = "c", font=("Helvetica Neue light", 20)).place(x = start_pos+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
+                    if ":" not in str(c):
+                        Label(text=str(c), fg="white", bg="black",anchor = "n", font=("Helvetica Neue light", 20)).place(x = start_pos +10 + (a.index(b) * 70), y = 1 + (b.index(c) * 30))
+                    else:
+                        Label(text=str(c), fg="white", bg="black", anchor="n", font=("Helvetica Neue light", 20)).place(
+                            x=start_pos + (a.index(b) * 70), y=1 + (b.index(c) * 30))
                 else:
 
                     ab = Image.open(getImage(c))
@@ -163,7 +167,7 @@ def putWeatherOnScreen():
                 photo = ImageTk.PhotoImage(ab)
                 images.append(photo)
 
-                Label(image=photo, width=60, bg="black", fg="white").place(x = start_pos+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
+                Label(image=photo, width=60, bg="black", fg="white").place(x = start_pos - 7+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
     return images
 def addBtc():
     a = Label(text=str(getBtc()),anchor = "nw", fg="white",width = 50, bg="black", font=("Helvetica Neue light", 20))
@@ -192,11 +196,10 @@ addHashRate()
 addNewsFeed()
 images = putWeatherOnScreen()
 app = FullScreenApp(root)
-#clock = Label(root, fg="white", bg="black",anchor = "nw", font=("Helvetica Neue light", 80))
-#clock.grid(row=0, column=8)
+clock = Label(root, fg="white", bg="black",anchor = "nw", font=("Helvetica Neue light", 80))
+clock.place(x = 700, y = 100)
 
 
-#tick()
-
+tick()
 
 root.mainloop()
