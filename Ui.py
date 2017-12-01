@@ -29,7 +29,7 @@ import smtplib
 import time
 import imaplib
 import email
-
+LEFT_SIDE = 1
 ORG_EMAIL   = "@gmail.com"
 FROM_EMAIL  = "maxnorman.biz" + ORG_EMAIL
 FROM_PWD    = "Maxnor22"
@@ -98,8 +98,8 @@ def addHashRate():
     r = float(a["confirmed_reward"])
     r = float(Bitfinex().get_current_price())* r
     r = round(r,2)
-    Label(text=("Hashrate: " + str(hr)+ " Th/s"),bd = 2, fg = "white", bg = "black",anchor = "nw", width = 50, font = ("Helvetica Neue light", 20)).grid(row=1,column=0)
-    Label(text=("Reward: $" + str(r)),bd = 2, fg="white", bg="black",anchor = "nw", width=50, font=("Helvetica Neue light", 20)).grid(row= 2, column=0)
+    Label(text=("Hashrate: " + str(hr)+ " Th/s"),bd = 2, fg = "white", bg = "black",anchor = "nw", width = 50, font = ("Helvetica Neue light", 20)).place(x= LEFT_SIDE, y = 25)
+    Label(text=("Reward: $" + str(r)),bd = 2, fg="white", bg="black",anchor = "nw", width=50, font=("Helvetica Neue light", 20)).place(x= LEFT_SIDE, y = 49)
 def convertTime(a):
     b = a + 4
     print b
@@ -141,14 +141,13 @@ def putWeatherOnScreen():
     a = getWeather()
     size = 60, 60
     images = []
+    start_pos = 700
     for b in a[0:6]:
 
         for c in b:
             if "a" not in str(c):
                 if "y" not in str(c):
-                    Label(text=str(c), fg="white", bg="black", font=("Helvetica Neue light", 20)).grid(row=b.index(c),
-                                                                                                       column=a.index(
-                                                                                                           b) + 2)
+                    Label(text=str(c), fg="white", bg="black",anchor = "c", font=("Helvetica Neue light", 20)).place(x = start_pos+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
                 else:
 
                     ab = Image.open(getImage(c))
@@ -156,7 +155,7 @@ def putWeatherOnScreen():
                     photo = ImageTk.PhotoImage(ab)
                     images.append(photo)
 
-                    Label(image=photo, width=60, bg="black", fg="white").grid(row=b.index(c), column=a.index(b) + 2)
+                    Label(image=photo, width=60, bg="black", fg="white").place(x = start_pos+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
             else:
 
                 ab = Image.open(getImage(c))
@@ -164,10 +163,11 @@ def putWeatherOnScreen():
                 photo = ImageTk.PhotoImage(ab)
                 images.append(photo)
 
-                Label(image=photo, width=60, bg="black", fg="white").grid(row=b.index(c), column=a.index(b) + 2)
+                Label(image=photo, width=60, bg="black", fg="white").place(x = start_pos+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
     return images
 def addBtc():
-    Label(text=str(getBtc()),anchor = "nw", fg="white",width = 50, bg="black", font=("Helvetica Neue light", 20)).grid(row=0, column=0)
+    a = Label(text=str(getBtc()),anchor = "nw", fg="white",width = 50, bg="black", font=("Helvetica Neue light", 20))
+    a .place(x = LEFT_SIDE, y = 1)
 def convertFrom(a):
     c = a.index('<')
     return a[0:c]
@@ -177,10 +177,9 @@ def addEmails():
         Label(text=str(convertFrom(a[x])), bd=2, relief="flat", fg="white", bg="black", anchor="nw", width=50, font=("Helvetica Neue light", 20)).grid(column = 7, row = x + 4)
 def addNewsFeed():
     newsArr = getHeadlines(cnnUS)
-    Label(text="   ", fg="white", bg="black", width=30,height = 3, font=("Helvetica Neue light", 30)).grid(row=5, column=0)
-    Label(text="News", fg="white", bg="black", width=30, font=("Helvetica Neue light", 40)).grid(row=6, column=0)
+    Label(text="News", fg="white", bg="black", font=("Helvetica Neue light", 40)).place(x = LEFT_SIDE, y = 100)
     for x in newsArr[0:8]:
-        Label(text=str(x),bd = 2,relief = "flat", fg="white", bg="black",anchor = "nw", width=50, font=("Helvetica Neue light", 20)).grid(row=newsArr.index(x) + 7, column=0)
+        Label(text=str(x),bd = 2,relief = "flat", fg="white", bg="black",anchor = "nw", width=50, font=("Helvetica Neue light", 20)).place(x = LEFT_SIDE, y = 175 +(newsArr.index(x)*25) )
 def tick():
     s = time.strftime('%I:%M')
     if s != clock["text"]:
@@ -193,10 +192,11 @@ addHashRate()
 addNewsFeed()
 images = putWeatherOnScreen()
 app = FullScreenApp(root)
-clock = Label(root, fg="white", bg="black",anchor = "nw", font=("Helvetica Neue light", 80))
-clock.grid(row=0, column=8)
+#clock = Label(root, fg="white", bg="black",anchor = "nw", font=("Helvetica Neue light", 80))
+#clock.grid(row=0, column=8)
 
 
-tick()
+#tick()
+
 
 root.mainloop()
