@@ -206,4 +206,4 @@ tick()
 
 root.mainloop()
 
-About
+
