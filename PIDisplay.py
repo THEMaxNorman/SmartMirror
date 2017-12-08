@@ -1,3 +1,8 @@
+#A Max Norman Project
+#
+#
+
+
 # -*- coding: utf-8 -*-
 from Tkinter import *
 from exchanges.bitfinex import Bitfinex
@@ -30,6 +35,7 @@ import time
 import imaplib
 import email
 t_c = "turquoise1"
+public_images = []
 LEFT_SIDE = 1
 ORG_EMAIL   = "@gmail.com"
 FROM_EMAIL  = "maxnorman.biz" + ORG_EMAIL
@@ -72,6 +78,43 @@ def read_email_from_gmail():
     except Exception, e:
         print str(e)
     return endArr
+
+
+
+def add_images_to_public():
+    size = 60, 60
+    list_of_things = ["Sunny", "Cloudy", "Rain", "Moon", "Snow"]
+    for c in list_of_things:
+        ab = Image.open(getImage(c))
+        ab.thumbnail(size, Image.ANTIALIAS)
+        photo = ImageTk.PhotoImage(ab)
+        public_images.append(photo)
+        
+def get_thumbnails(a):
+    str(a)
+    if int(time.strftime("%H")) > 6:
+        if "Cloudy" in a:
+            return public_images[1]
+        elif "Rain" in a:
+            return public_images[2]
+        elif "Sunny" in a:
+            return public_images[3]
+        elif "Snow" in a:
+            return public_images[4]
+        else:
+            return public_images[3]
+    else:
+        if "Cloudy" in a:
+            return public_images[1]
+        elif "Rain" in a:
+            return public_images[2]
+        elif "Sunny" in a:
+            return public_images[0]
+        elif "Snow" in a:
+            return public_images[4]
+        else:
+            return public_images[0]
+
 cnnUS = "http://rss.cnn.com/rss/cnn_us.rss"
 cnntech = "http://rss.cnn.com/rss/cnn_tech.rss"
 slushUrl = "https://slushpool.com/accounts/profile/json/1787598-f474765ec374ff7e6ea8695635f1415f"
@@ -130,18 +173,31 @@ def getWeather():
     return endArr
 def getImage(a):
     str(a)
-    if "Cloudy" in a:
-        return 'cloudy.jpeg'
-    elif "Rain" in a:
-        return 'rainy.jpeg'
-    elif "Sunny" in a:
-        return "sunny.jpeg"
+    if int(time.strftime("%H")) > 6:
+        if "Cloudy" in a:
+            return 'cloudy.jpeg'
+        elif "Rain" in a:
+            return 'rainy.jpeg'
+        elif "Sunny" in a:
+            return "moon.jpeg"
+        elif "Snow" in a:
+            return "snowy.jpeg"
+        else:
+            return "moon.jpeg"
     else:
-        return "sunny.jpeg"
+        if "Cloudy" in a:
+            return 'cloudy.jpeg'
+        elif "Rain" in a:
+            return 'rainy.jpeg'
+        elif "Sunny" in a:
+            return "moon.jpeg"
+        elif "Snow" in a:
+            return "snowy.jpeg"
+        else:
+            return "moon.jpeg"
 def putWeatherOnScreen():
     a = getWeather()
     size = 60, 60
-    images = []
     start_pos = 600
 
     for b in a[0:6]:
@@ -156,21 +212,12 @@ def putWeatherOnScreen():
                             x=start_pos + (a.index(b) * 70), y=1 + (b.index(c) * 30))
                 else:
 
-                    ab = Image.open(getImage(c))
-                    ab.thumbnail(size, Image.ANTIALIAS)
-                    photo = ImageTk.PhotoImage(ab)
-                    images.append(photo)
+                   
 
-                    Label(image=photo, width=60, bg="black", fg="white").place(x = start_pos+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
+                    Label(image=get_thumbnails(c), width=60, bg="black", fg="white").place(x = start_pos+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
             else:
 
-                ab = Image.open(getImage(c))
-                ab.thumbnail(size, Image.ANTIALIAS)
-                photo = ImageTk.PhotoImage(ab)
-                images.append(photo)
-
-                Label(image=photo, width=60, bg="black", fg="white").place(x = start_pos - 7+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
-    return images
+                Label(image=get_thumbnails(c), width=60, bg="black", fg="white").place(x = start_pos - 7+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
 def addBtc():
     a = Label(text=str(getBtc()),anchor = "nw", fg="white",width = 50, bg="black", font=("Helvetica Neue light", 20))
     a .place(x = LEFT_SIDE, y = 1)
@@ -188,22 +235,32 @@ def addNewsFeed():
         Label(text=str(x),bd = 2,relief = "flat", fg="white", bg="black",anchor = "nw", width=50, font=("Helvetica Neue light", 20)).place(x = LEFT_SIDE, y = 175 +(newsArr.index(x)*30) )
 def tick():
     s = time.strftime('%I:%M')
+    h = time.strftime("%I")
+    if h != clock["text"].split(":")[0]:
+        update()
     if s != clock["text"]:
         clock["text"] = s
+
     clock.after(200, tick)
+    
+def update():
+    addBtc()
+    addHashRate()
+    addNewsFeed()
+    putWeatherOnScreen()
+    print "Updated"
+
 root = Tk()
+add_images_to_public()
 root.configure(background = "black")
 addBtc()
 addHashRate()
 addNewsFeed()
-images = putWeatherOnScreen()
+putWeatherOnScreen()
 app = FullScreenApp(root)
 clock = Label(root, fg="white", bg="black",anchor = "nw", font=("Helvetica Neue light", 80))
 clock.place(x = 700, y = 100)
-
-
 tick()
-
 root.mainloop()
 
 
