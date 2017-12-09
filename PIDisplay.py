@@ -1,8 +1,3 @@
-#A Max Norman Project
-#
-#
-
-
 # -*- coding: utf-8 -*-
 from Tkinter import *
 from exchanges.bitfinex import Bitfinex
@@ -13,7 +8,7 @@ import time
 from PIL import ImageTk, Image,ImageFont, ImageDraw
 import feedparser
 import json
-
+import random
 
 
 class FullScreenApp(object):
@@ -35,7 +30,9 @@ import time
 import imaplib
 import email
 t_c = "turquoise1"
+list_of_Labels = []
 public_images = []
+greetings = ["Good to see you again", "Hello", "Looking good", "Hi", "Nice to see you", "Looking good!"]
 LEFT_SIDE = 1
 ORG_EMAIL   = "@gmail.com"
 FROM_EMAIL  = "maxnorman.biz" + ORG_EMAIL
@@ -89,7 +86,7 @@ def add_images_to_public():
         ab.thumbnail(size, Image.ANTIALIAS)
         photo = ImageTk.PhotoImage(ab)
         public_images.append(photo)
-        
+
 def get_thumbnails(a):
     str(a)
     if int(time.strftime("%H")) > 6:
@@ -142,8 +139,12 @@ def addHashRate():
     r = float(a["confirmed_reward"])
     r = float(Bitfinex().get_current_price())* r
     r = round(r,2)
-    Label(text=("Hashrate: " + str(hr)+ " Th/s"),bd = 2, fg = "white", bg = "black",anchor = "nw", width = 50, font = ("Helvetica Neue light", 15)).place(x= LEFT_SIDE, y = 31)
-    Label(text=("Reward: $" + str(r)),bd = 2, fg="white", bg="black",anchor = "nw", width=50, font=("Helvetica Neue light", 15)).place(x= LEFT_SIDE, y = 61)
+    d =Label(text=("Hashrate: " + str(hr)+ " Th/s"),bd = 2, fg = "white", bg = "black",anchor = "nw", width = 50, font = ("Helvetica Neue light", 15))
+    d.place(x= LEFT_SIDE, y = 31)
+    m =Label(text=("Reward: $" + str(r)),bd = 2, fg="white", bg="black",anchor = "nw", width=50, font=("Helvetica Neue light", 15))
+    m.place(x= LEFT_SIDE, y = 61)
+    list_of_Labels.append(d)
+    list_of_Labels.append(m)
 def convertTime(a):
     b = a + 4
     print b
@@ -206,21 +207,29 @@ def putWeatherOnScreen():
             if "a" not in str(c):
                 if "y" not in str(c):
                     if ":" not in str(c):
-                        Label(text=str(c), fg="white", bg="black",anchor = "n", font=("Helvetica Neue light", 20)).place(x = start_pos +10 + (a.index(b) * 70), y = 1 + (b.index(c) * 30))
+                        m = Label(text=str(c), fg="white", bg="black",anchor = "n", font=("Helvetica Neue light", 20))
+                        m.place(x = start_pos +10 + (a.index(b) * 70), y = 1 + (b.index(c) * 30))
+                        list_of_Labels.append(m)
                     else:
-                        Label(text=str(c), fg="white", bg="black", anchor="n", font=("Helvetica Neue light", 20)).place(
-                            x=start_pos + (a.index(b) * 70), y=1 + (b.index(c) * 30))
+                        m = Label(text=str(c), fg="white", bg="black", anchor="n", font=("Helvetica Neue light", 20))
+                        m.place(x=start_pos + (a.index(b) * 70), y=1 + (b.index(c) * 30))
+                        list_of_Labels.append(m)
                 else:
 
-                   
 
-                    Label(image=get_thumbnails(c), width=60, bg="black", fg="white").place(x = start_pos+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
+
+                    m = Label(image=get_thumbnails(c), width=60, bg="black", fg="white")
+                    m.place(x = start_pos+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
+                    list_of_Labels.append(m)
             else:
 
-                Label(image=get_thumbnails(c), width=60, bg="black", fg="white").place(x = start_pos - 7+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
+                m = Label(image=get_thumbnails(c), width=60, bg="black", fg="white")
+                m.place(x = start_pos - 7+ (a.index(b) * 70), y = 1 + (b.index(c) * 30))
+                list_of_Labels.append(m)
 def addBtc():
     a = Label(text=str(getBtc()),anchor = "nw", fg="white",width = 50, bg="black", font=("Helvetica Neue light", 20))
     a .place(x = LEFT_SIDE, y = 1)
+    list_of_Labels.append(a)
 def convertFrom(a):
     c = a.index('<')
     return a[0:c]
@@ -230,10 +239,36 @@ def addEmails():
         Label(text=str(convertFrom(a[x])), bd=2, relief="flat", fg="white", bg="black", anchor="nw", width=50, font=("Helvetica Neue light", 20)).grid(column = 7, row = x + 4)
 def addNewsFeed():
     newsArr = getHeadlines(cnnUS)
-    Label(text="News", fg="white", bg="black", font=("Helvetica Neue light", 40)).place(x = LEFT_SIDE, y = 100)
+    d = Label(text="News", fg="white", bg="black", font=("Helvetica Neue light", 40))
+    d.place(x = LEFT_SIDE, y = 100)
+    list_of_Labels.append(d)
     for x in newsArr[0:8]:
-        Label(text=str(x),bd = 2,relief = "flat", fg="white", bg="black",anchor = "nw", width=50, font=("Helvetica Neue light", 20)).place(x = LEFT_SIDE, y = 175 +(newsArr.index(x)*30) )
+       m = Label(text=str(x),bd = 2,relief = "flat", fg="white", bg="black",anchor = "nw", width=50, font=("Helvetica Neue light", 20))
+       m.place(x = LEFT_SIDE, y = 175 +(newsArr.index(x)*30) )
+       list_of_Labels.append(m)
+
+def genRandomGreeting():
+    random.shuffle(greetings)
+    print greetings[0]
+    return greetings[0]
+
+def greet():
+    s = ""
+    for l in genRandomGreeting():
+        s += l
+        greeting["text"] = s
+        time.sleep(.5)
+
+
+def clearGreeting():
+    greeting["text"] = ""
+
+def destroyAll():
+    for label in list_of_Labels:
+        print label
+        label.destroy()
 def tick():
+
     s = time.strftime('%I:%M')
     h = time.strftime("%I")
     if h != clock["text"].split(":")[0]:
@@ -242,8 +277,9 @@ def tick():
         clock["text"] = s
 
     clock.after(200, tick)
-    
+
 def update():
+    destroyAll()
     addBtc()
     addHashRate()
     addNewsFeed()
@@ -260,6 +296,8 @@ putWeatherOnScreen()
 app = FullScreenApp(root)
 clock = Label(root, fg="white", bg="black",anchor = "nw", font=("Helvetica Neue light", 80))
 clock.place(x = 700, y = 100)
+greeting = Label(root, fg="white", bg="black",anchor = "nw", font=("Helvetica Neue light", 80))
+greeting.place(x = 0, y = 500)
 tick()
 root.mainloop()
 
