@@ -9,6 +9,9 @@ from PIL import ImageTk, Image,ImageFont, ImageDraw
 import feedparser
 import json
 import random
+import sys
+import freenect
+THRESHOLD_VAL = 150
 
 
 class FullScreenApp(object):
@@ -111,6 +114,49 @@ def get_thumbnails(a):
             return public_images[4]
         else:
             return public_images[0]
+
+
+def turn_off_screen():
+    if sys.platform.startswith('linux'):
+        import os
+
+        os.system("xset dpms force off")
+
+    elif sys.platform.startswith('win'):
+        import win32gui
+        import win32con
+        from os import getpid, system
+        from threading import Timer
+
+        def force_exit():
+            pid = getpid()
+            system('taskkill /pid %s /f' % pid)
+
+        t = Timer(1, force_exit)
+        t.start()
+        SC_MONITORPOWER = 0xF170
+        win32gui.SendMessage(win32con.HWND_BROADCAST, win32con.WM_SYSCOMMAND, SC_MONITORPOWER, 2)
+        t.cancel()
+
+    elif sys.platform.startswith('darwin'):
+        import subprocess
+
+        subprocess.call('echo \'tell application "Finder" to sleep\' | osascript', shell=True)
+
+def get_depth():
+    array, _ = freenect.sync_get_depth()
+    array = array.astype(np.uint8)
+    checker = 0
+    for x in range(150, 350):
+        for y in range(150, 350):
+            if (array[x][y] >= THRESHOLD_VAL):
+                checker += 1
+
+    if checker >= (200 * 200) / 2:
+        update()
+
+    else:
+        turn_off_screen()
 
 cnnUS = "http://rss.cnn.com/rss/cnn_us.rss"
 cnntech = "http://rss.cnn.com/rss/cnn_tech.rss"
@@ -268,11 +314,9 @@ def destroyAll():
         print label
         label.destroy()
 def tick():
-
+    get_depth()
     s = time.strftime('%I:%M')
     h = time.strftime("%I")
-    if h != clock["text"].split(":")[0]:
-        update()
     if s != clock["text"]:
         clock["text"] = s
 
@@ -300,5 +344,3 @@ greeting = Label(root, fg="white", bg="black",anchor = "nw", font=("Helvetica Ne
 greeting.place(x = 0, y = 500)
 tick()
 root.mainloop()
-
-
