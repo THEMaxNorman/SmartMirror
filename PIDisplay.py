@@ -11,7 +11,7 @@ import json
 import random
 import sys
 import freenect
-THRESHOLD_VAL = 150
+
 
 
 class FullScreenApp(object):
@@ -119,44 +119,52 @@ def get_thumbnails(a):
 def turn_off_screen():
     if sys.platform.startswith('linux'):
         import os
-
         os.system("xset dpms force off")
 
-    elif sys.platform.startswith('win'):
-        import win32gui
-        import win32con
-        from os import getpid, system
-        from threading import Timer
+def turn_on_screen():
+    if sys.platform.startswith('linux'):
+        import os
+        os.system("xset dpms force on")
 
-        def force_exit():
-            pid = getpid()
-            system('taskkill /pid %s /f' % pid)
-
-        t = Timer(1, force_exit)
-        t.start()
-        SC_MONITORPOWER = 0xF170
-        win32gui.SendMessage(win32con.HWND_BROADCAST, win32con.WM_SYSCOMMAND, SC_MONITORPOWER, 2)
-        t.cancel()
-
-    elif sys.platform.startswith('darwin'):
-        import subprocess
-
-        subprocess.call('echo \'tell application "Finder" to sleep\' | osascript', shell=True)
-
+is_there = False
+BASELINE_DEPTH = 120
 def get_depth():
+    global is_there
+    UNCNUM = 4
+    #UNCNUM is the level of certainity you want - bigger is less certain
     array, _ = freenect.sync_get_depth()
     array = array.astype(np.uint8)
     checker = 0
     for x in range(150, 350):
         for y in range(150, 350):
-            if (array[x][y] >= THRESHOLD_VAL):
+            if (array[x][y] <= BASELINE_DEPTH):
                 checker += 1
 
-    if checker >= (200 * 200) / 2:
-        update()
+    if checker >= (200 * 200) / UNCNUM:
+        if  not is_there:
+            hello()
+        is_there = True
 
     else:
-        turn_off_screen()
+        if is_there:
+            goodbye()
+        is_there = False
+
+
+    return array
+
+def hello():
+    turn_on_screen()
+    update()
+    greet()
+    time.sleep(5)
+    clearGreeting()
+
+def goodbye():
+    time.sleep(120)
+    turn_off_screen()
+
+
 
 cnnUS = "http://rss.cnn.com/rss/cnn_us.rss"
 cnntech = "http://rss.cnn.com/rss/cnn_tech.rss"
@@ -165,7 +173,6 @@ def parseRSS( rss_url ):
     return feedparser.parse( rss_url )
 def getHeadlines(rss_url):
     headlines = []
-
     feed = parseRSS(rss_url)
     for newsitem in feed['items']:
         headlines.append(newsitem['title'])
@@ -295,7 +302,6 @@ def addNewsFeed():
 
 def genRandomGreeting():
     random.shuffle(greetings)
-    print greetings[0]
     return greetings[0]
 
 def greet():
@@ -316,9 +322,9 @@ def destroyAll():
 def tick():
     get_depth()
     s = time.strftime('%I:%M')
-    h = time.strftime("%I")
     if s != clock["text"]:
         clock["text"] = s
+
 
     clock.after(200, tick)
 
