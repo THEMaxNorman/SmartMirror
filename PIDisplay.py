@@ -11,6 +11,7 @@ import json
 import random
 import sys
 import freenect
+import numpy as np
 
 
 
